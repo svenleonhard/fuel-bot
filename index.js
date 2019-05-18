@@ -2,13 +2,16 @@
 // Licensed under the MIT License.
 
 const restify = require('restify');
+const path = require('path');
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const { BotFrameworkAdapter } = require('botbuilder');
+const { BotFrameworkAdapter, ConversationState, MemoryStorage, UserState } = require('botbuilder');
 
-// This bot's main dialog.
-const { MyBot } = require('./bot');
+// Import our custom bot class that provides a turn handling function.
+const { DialogBot } = require('./bots/dialogBot');
+const { FuelDialog } = require('./dialogs/fuelDialog');
+
 
 // Create HTTP server
 const server = restify.createServer();
@@ -29,10 +32,25 @@ adapter.onTurnError = async (context, error) => {
     console.error(`\n [onTurnError]: ${ error }`);
     // Send a message to the user
     await context.sendActivity(`Oops. Something went wrong!`);
+        // Clear out state
+        await conversationState.delete(context);
 };
 
+// Define the state store for your bot.
+// See https://aka.ms/about-bot-state to learn more about using MemoryStorage.
+// A bot requires a state storage system to persist the dialog and user state between messages.
+const memoryStorage = new MemoryStorage();
+
+// Create conversation state with in-memory storage provider.
+const conversationState = new ConversationState(memoryStorage);
+const userState = new UserState(memoryStorage);
+
+// Pass in a logger to the bot. For this sample, the logger is the console, but alternatives such as Application Insights and Event Hub exist for storing the logs of the bot.
+const logger = console;
+
 // Create the main dialog.
-const myBot = new MyBot();
+const dialog = new UserProfileDialog(userState, logger);
+const bot = new DialogBot(conversationState, userState, dialog, logger);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {
