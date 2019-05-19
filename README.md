@@ -1,21 +1,41 @@
-# fuel-bot
-find the cheapest gas station
+# Fuel Bot
+This is a basic example of a bot using Microsoft Bot Framework. It is possible to get the lowest petrol prices in a city. Therefore a specially developed API in form of a node.js package is used. It is also part of this repository and combines the petrol price API Tankerkönig and the geo API OpenCage Geocoding.
 
 This bot has been created using [Bot Framework][1].
 
 ## Prerequisites
 - [Node.js][4] version 8.5 or higher
+- API Key from [Tankerkönig][12]
+- API Key from [OpenCage][13]
 
+## First steps
+- Determine node version
 ```bash
-# determine node version
 node --version
 ```
-
-# To run the bot
+- Create a new folder in which the bot should be placed (e.g. fuel-api)
+- Install Yeoman, a tool that can be used to generate a microsoft bot automatically
+    ```bash
+    npm install -g yo generator-botbuilder
+    ```
+- Generate an empty bot
+    ```bash
+   yo botbuilder
+    ```
+- Copy the files from this repository into the folder of the bot you generated before. All files, htat already exist can be replaced. The initial generation only ensures the availability of filese igonored by git.
 - Install modules
     ```bash
     npm install
+- Switch to the folder `fuel-api`, which you have just copied into the root folder of your bot. Open a terminal within this folder and install node module `node-fetch`
+- Create a json file called `apiKeys.json` within `fuel-api` directory and insert your API keys (See example below)
+    ```bash
+    {
+    "geoApi": xxxxxxxxxxxxxxxxxxxxxxx",
+    "fuelApi": "xxxxxxxxxxxxxxxxxxxxxxxx"
+    }
     ```
+    
+# To run the bot
 - Start the bot
     ```bash
     npm start
@@ -67,3 +87,5 @@ To learn how, see [Deploy your bot to Azure][40] for a complete set of deploymen
 [32]: https://docs.microsoft.com/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0
 [40]: https://aka.ms/azuredeployment
 [41]: ./PREREQUISITES.md
+[12]: https://creativecommons.tankerkoenig.de/
+[13]: https://opencagedata.com/api
