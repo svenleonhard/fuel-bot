@@ -11,12 +11,11 @@ const {
 } = require('botbuilder-dialogs');
 
 const { UserFuelInformation } = require('../userFuelInformation');
-
 const CHOICE_PROMPT = 'CHOICE_PROMPT';
 const CONFIRM_PROMPT = 'CONFIRM_PROMPT';
 const NAME_PROMPT = 'NAME_PROMPT';
 const NUMBER_PROMPT = 'NUMBER_PROMPT';
-const USER_PROFILE = 'USER_PROFILE';
+const USER_FUEL_INFORMATION = 'USER_FUEL_INFORMATION';
 const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
 
 class FuelDialog extends ComponentDialog {
@@ -24,7 +23,7 @@ class FuelDialog extends ComponentDialog {
     constructor(userState, logger) {
         super('fuelDialog');
 
-        this.userProfile = userState.createProperty(USER_PROFILE);
+        this.userFuelInformation = userState.createProperty(USER_FUEL_INFORMATION);
 
         this.logger = logger;
 
@@ -60,7 +59,7 @@ class FuelDialog extends ComponentDialog {
             await dialogContext.beginDialog(this.id);
         }
 
-        
+
     }
 
     async transportStep(step) {
@@ -79,7 +78,7 @@ class FuelDialog extends ComponentDialog {
 
     async nameConfirmStep(step) {
 
-        step.values.city = step.result.value;
+        step.values.city = step.result;
 
         // We can send messages to the user at any point in the WaterfallStep.
         // await step.context.sendActivity(`Thanks ${ step.result }.`);
@@ -103,23 +102,29 @@ class FuelDialog extends ComponentDialog {
 
     async summaryStep(step) {
 
-        if (step.values.distance === -1) {
-            userProfile.distance = 10;
-            await step.context.sendActivity('No maximum distance given.');
+        if (step.result) {
+            step.values.distance = step.result;
+
+            // Get the current profile object from user state.
+            const userFuelInformation = await this.userFuelInformation.get(step.context, new UserFuelInformation());
+
+            userFuelInformation.fuelType = step.values.fuelType;
+            userFuelInformation.city = step.values.city;
+            userFuelInformation.distance = step.values.distance;
+
+            if (step.values.distance === -1) {
+                step.values.distance = 10;
+                await step.context.sendActivity('No maximum distance given.');
+            }
+            else {
+                await step.context.sendActivity(`I have your maximum distance as ${step.values.distance} km.`);
+            }
+
+            await step.context.sendActivity("empty");
         }
-        else{
-            step.values.distance = step.result.value;
-            await step.context.sendActivity(`I have your maximum distance as ${step.values.distance} km.`);
+        else {
+            await step.context.sendActivity("There was someting wrong with your maximum distance. Please try again");
         }
-
-        // Get the current profile object from user state.
-        const userFuelInformation = await this.userFuelInformation.get(step.context, new UserFuelInformation());
-
-        userFuelInformation.fuelType = step.values.fuelType;
-        userFuelInformation.city = step.values.city.charAt(0).toUpperCase() + step.values.city.slice(1);
-        userFuelInformation.distance = step.values.distance;
-
-        await step.context.sendActivity("empty");
 
         // WaterfallStep always finishes with the end of the Waterfall or with another dialog, here it is the end.
         return await step.endDialog();
@@ -130,3 +135,5 @@ class FuelDialog extends ComponentDialog {
         return promptContext.recognized.succeeded && promptContext.recognized.value > 0 && promptContext.recognized.value < 150;
     }
 }
+
+module.exports.FuelDialog = FuelDialog;

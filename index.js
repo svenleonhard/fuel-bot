@@ -49,13 +49,13 @@ const userState = new UserState(memoryStorage);
 const logger = console;
 
 // Create the main dialog.
-const dialog = new UserProfileDialog(userState, logger);
+const dialog = new FuelDialog(userState, logger);
 const bot = new DialogBot(conversationState, userState, dialog, logger);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, async (context) => {
-        // Route to main dialog.
-        await myBot.onTurn(context);
+     // Route the message to the bot's main handler.
+     await bot.run(context);
     });
 });

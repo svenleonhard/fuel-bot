@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "botbuilder": "^4.2.0",
+        "botbuilder-dialogs": "^4.4.0",
         "restify": "^7.2.3"
     },
     "devDependencies": {
