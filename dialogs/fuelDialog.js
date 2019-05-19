@@ -41,13 +41,13 @@ class FuelDialog extends ComponentDialog {
         this.addDialog(new TextPrompt(NAME_PROMPT));
         this.addDialog(new ChoicePrompt(CHOICE_PROMPT));
         this.addDialog(new ConfirmPrompt(CONFIRM_PROMPT));
-        this.addDialog(new NumberPrompt(NUMBER_PROMPT, this.agePromptValidator));
+        this.addDialog(new NumberPrompt(NUMBER_PROMPT, this.distancePromptValidator));
 
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
-            this.transportStep.bind(this),
-            this.nameStep.bind(this),
-            this.nameConfirmStep.bind(this),
-            this.ageStep.bind(this),
+            this.fuelTypeStep.bind(this),
+            this.cityStep.bind(this),
+            this.cityConfirmStep.bind(this),
+            this.maximumDistanceStep.bind(this),
             this.summaryStep.bind(this)
         ]));
 
@@ -69,11 +69,9 @@ class FuelDialog extends ComponentDialog {
         if (results.status === DialogTurnStatus.empty) {
             await dialogContext.beginDialog(this.id);
         }
-
-
     }
 
-    async transportStep(step) {
+    async fuelTypeStep(step) {
         // WaterfallStep always finishes with the end of the Waterfall or with another dialog; here it is a Prompt Dialog.
         // Running a prompt here means the next WaterfallStep will be run when the users response is received.
         return await step.prompt(CHOICE_PROMPT, {
@@ -82,12 +80,12 @@ class FuelDialog extends ComponentDialog {
         });
     }
 
-    async nameStep(step) {
+    async cityStep(step) {
         step.values.fuelType = step.result.value;
         return await step.prompt(NAME_PROMPT, `Where are you right now?`);
     }
 
-    async nameConfirmStep(step) {
+    async cityConfirmStep(step) {
 
         step.values.city = step.result;
 
@@ -98,15 +96,15 @@ class FuelDialog extends ComponentDialog {
         return await step.prompt(CONFIRM_PROMPT, 'Do you want to specify a maximum distance?', ['Yes', 'No']);
     }
 
-    async ageStep(step) {
+    async maximumDistanceStep(step) {
         if (step.result) {
-            // User said "yes" so we will be prompting for the age.
+            // User said "yes" so we will be prompting for the maximum distance.
             // WaterfallStep always finishes with the end of the Waterfall or with another dialog, here it is a Prompt Dialog.
             const promptOptions = { prompt: 'What is your maximum distance', retryPrompt: 'The value entered must be greater than 0 and less than 150.' };
 
             return await step.prompt(NUMBER_PROMPT, promptOptions);
         } else {
-            // User said "no" so we will skip the next step. Give -1 as the age.
+            // User said "no" so we will skip the next step. Give -1 as the maximum distance.
             return await step.next(-1);
         }
     }
@@ -144,7 +142,7 @@ class FuelDialog extends ComponentDialog {
         return await step.endDialog();
     }
 
-    async agePromptValidator(promptContext) {
+    async distancePromptValidator(promptContext) {
         // This condition is our validation rule. You can also change the value at this point.
         return promptContext.recognized.succeeded && promptContext.recognized.value > 0 && promptContext.recognized.value < 150;
     }
