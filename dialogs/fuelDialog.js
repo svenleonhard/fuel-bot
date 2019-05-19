@@ -121,12 +121,12 @@ class FuelDialog extends ComponentDialog {
             userFuelInformation.city = step.values.city;
             userFuelInformation.distance = step.values.distance;
 
-            if (step.values.distance === -1) {
-                step.values.distance = 10;
+            if (userFuelInformation.distance === -1) {
+                userFuelInformation.distance = 10;
                 await step.context.sendActivity('No maximum distance given.');
             }
             else {
-                await step.context.sendActivity(`I have your maximum distance as ${step.values.distance} km.`);
+                await step.context.sendActivity(`I have your maximum distance as ${userFuelInformation.distance} km.`);
             }
 
             const fuelApiResult = await fuelApi.getCheapestGasStation(userFuelInformation.city, userFuelInformation.fuelType.toLowerCase(), userFuelInformation.distance);
