@@ -1,0 +1,21 @@
+{
+  "name": "fuel-api",
+  "version": "1.0.0",
+  "description": "api to get fuel prices in germany",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "test"
+  },
+  "keywords": [
+    "fuel"
+  ],
+  "author": "svenleonhard",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.5.0"
+  }
+}

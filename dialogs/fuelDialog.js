@@ -18,6 +18,14 @@ const NUMBER_PROMPT = 'NUMBER_PROMPT';
 const USER_FUEL_INFORMATION = 'USER_FUEL_INFORMATION';
 const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
 
+const fs = require('fs');
+
+let rawdata = fs.readFileSync('./fuel-api/apiKeys.json');  
+let apiKeys = JSON.parse(rawdata);  
+
+const { FuelApi } = require("../fuel-api");
+const fuelApi = new FuelApi(apiKeys);
+
 class FuelDialog extends ComponentDialog {
 
     constructor(userState, logger) {
@@ -119,6 +127,10 @@ class FuelDialog extends ComponentDialog {
             else {
                 await step.context.sendActivity(`I have your maximum distance as ${step.values.distance} km.`);
             }
+
+            const fuelApiResult = await fuelApi.getCheapestGasStation(userFuelInformation.city, userFuelInformation.fuelType.toLowerCase(), userFuelInformation.distance);
+            console.log("#####");
+            console.log(fuelApiResult);
 
             await step.context.sendActivity("empty");
         }
