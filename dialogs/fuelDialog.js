@@ -20,11 +20,14 @@ const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
 
 const fs = require('fs');
 
-let rawdata = fs.readFileSync('./fuel-api/apiKeys.json');  
-let apiKeys = JSON.parse(rawdata);  
+let rawdata = fs.readFileSync('./fuel-api/apiKeys.json');
+let apiKeys = JSON.parse(rawdata);
 
 const { FuelApi } = require("../fuel-api");
 const fuelApi = new FuelApi(apiKeys);
+
+const { AnswerBuilder } = require("../answer-builder");
+const answerBuilder = new AnswerBuilder();
 
 class FuelDialog extends ComponentDialog {
 
@@ -129,10 +132,9 @@ class FuelDialog extends ComponentDialog {
             }
 
             const fuelApiResult = await fuelApi.getCheapestGasStation(userFuelInformation.city, userFuelInformation.fuelType.toLowerCase(), userFuelInformation.distance);
-            console.log("#####");
-            console.log(fuelApiResult);
+            const answer = answerBuilder.fourMostCheapestStations(fuelApiResult, userFuelInformation.fuelType, userFuelInformation.city);
 
-            await step.context.sendActivity("empty");
+            ; await step.context.sendActivity(answer);
         }
         else {
             await step.context.sendActivity("There was someting wrong with your maximum distance. Please try again");
